@@ -1,17 +1,18 @@
 import { Injectable } from '@nestjs/common';
-import { Room } from './room.entity';
+import { Room } from './entitiy/room.entity';
 import { RoomRepository } from './room.repository';
 import { RoomCodeVO } from './vo/room-code.vo';
+import { Socket } from 'socket.io';
 
 @Injectable()
 export class RoomService {
   constructor(private readonly roomRepository: RoomRepository) {}
 
-  createRoom() {
+  createRoom(host: Socket): Room {
     for (let attempt = 0; attempt < 5; attempt++) {
       const roomCode = RoomCodeVO.generate();
       if (!this.roomRepository.exists(roomCode)) {
-        const room = new Room(roomCode);
+        const room = new Room(roomCode, host);
         this.roomRepository.save(room);
         return room;
       }

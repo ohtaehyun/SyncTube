@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Room } from './room.entity';
+import { Room } from './entitiy/room.entity';
 import { RoomCodeVO } from './vo/room-code.vo';
 
 @Injectable()
