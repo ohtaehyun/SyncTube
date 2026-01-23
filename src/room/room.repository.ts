@@ -17,4 +17,8 @@ export class RoomRepository {
   exists(code: RoomCodeVO): boolean {
     return this.rooms.has(code.value);
   }
+
+  delete(code: RoomCodeVO): void {
+    this.rooms.delete(code.value);
+  }
 }

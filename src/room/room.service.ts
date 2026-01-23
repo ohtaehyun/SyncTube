@@ -21,4 +21,19 @@ export class RoomService {
       'Failed to generate a unique room code after multiple attempts',
     );
   }
+
+  deleteRoom(code: RoomCodeVO) {
+    const room = this.roomRepository.findByCode(code);
+    if (room) {
+      this.roomRepository.delete(code);
+    }
+
+    return;
+  }
+
+  joinRoom(code: RoomCodeVO) {
+    const room = this.roomRepository.findByCode(code);
+
+    return;
+  }
 }
