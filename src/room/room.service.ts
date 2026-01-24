@@ -23,9 +23,9 @@ export class RoomService {
     );
   }
 
-  deleteRoom(code: RoomCodeVO) {
+  deleteRoom(code: RoomCodeVO, client: Socket) {
     const room = this.roomRepository.findByCode(code);
-    if (room) {
+    if (room && room.isHost(client)) {
       this.roomRepository.delete(code);
     }
 
@@ -34,6 +34,9 @@ export class RoomService {
 
   joinRoom(code: RoomCodeVO) {
     const room = this.roomRepository.findByCode(code);
+
+    if (room) {
+    }
 
     return;
   }

@@ -25,4 +25,8 @@ export class Room {
     this._clients.add(client);
     client.join(this._code.value);
   }
+
+  isHost(client: Socket): boolean {
+    return this._host.id === client.id;
+  }
 }
