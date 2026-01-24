@@ -10,6 +10,8 @@ import {
 import { Server, Socket } from 'socket.io';
 import { RoomService } from './room.service';
 import { DeleteRoomDto } from './dto/delete-room.dto';
+import { JoinRoomDto } from './dto/join-room.dto';
+import { LeaveRoomDto } from './dto/leave-room.dto';
 
 @WebSocketGateway({
   cors: {
@@ -43,5 +45,24 @@ export class RoomGateway implements OnGatewayConnection, OnGatewayDisconnect {
   ) {
     this.roomService.deleteRoom(dto.code, client);
     return { message: 'Deleted room' };
+  }
+
+  @SubscribeMessage('JOIN_ROOM')
+  async handleJoinRoom(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() dto: JoinRoomDto,
+  ) {
+    this.roomService.joinRoom(dto.code, client);
+
+    return { message: 'Joined room' };
+  }
+
+  @SubscribeMessage('LEAVE_ROOM')
+  async handleLeaveRoom(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() dto: LeaveRoomDto,
+  ) {
+    this.roomService.leaveRoom(dto.code, client);
+    return { message: 'Left room' };
   }
 }

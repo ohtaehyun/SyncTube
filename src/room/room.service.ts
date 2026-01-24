@@ -32,11 +32,24 @@ export class RoomService {
     return;
   }
 
-  joinRoom(code: RoomCodeVO) {
+  joinRoom(code: RoomCodeVO, client: Socket) {
     const room = this.roomRepository.findByCode(code);
-
-    if (room) {
+    if (!room) {
+      throw new Error('Room not found');
     }
+
+    room.addClient(client);
+
+    return;
+  }
+
+  leaveRoom(code: RoomCodeVO, client: Socket) {
+    const room = this.roomRepository.findByCode(code);
+    if (!room) {
+      throw new Error('Room not found');
+    }
+
+    // Implement logic to remove client from room if needed
 
     return;
   }

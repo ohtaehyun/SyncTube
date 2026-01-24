@@ -26,6 +26,15 @@ export class Room {
     client.join(this._code.value);
   }
 
+  removeClient(client: Socket): void {
+    if (!this._clients.has(client)) {
+      return;
+    }
+
+    this._clients.delete(client);
+    client.leave(this._code.value);
+  }
+
   isHost(client: Socket): boolean {
     return this._host.id === client.id;
   }
