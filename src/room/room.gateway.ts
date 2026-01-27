@@ -12,6 +12,7 @@ import { RoomService } from './room.service';
 import { DeleteRoomDto } from './dto/delete-room.dto';
 import { JoinRoomDto } from './dto/join-room.dto';
 import { LeaveRoomDto } from './dto/leave-room.dto';
+import { CreateRoomDto } from './dto/create-room.dto';
 
 @WebSocketGateway({
   cors: {
@@ -33,8 +34,12 @@ export class RoomGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('CREATE_ROOM')
-  async handleCreateRoom(@ConnectedSocket() client: Socket) {
-    const room = this.roomService.createRoom(client);
+  async handleCreateRoom(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() dto: CreateRoomDto,
+  ) {
+    const room = this.roomService.createRoom(client, dto.videoId);
+    console.log(`Room created with code: ${room.code.value}`);
     return { code: room.code.value };
   }
 
