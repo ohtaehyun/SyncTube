@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Room } from './entitiy/room.entity';
+import { Room } from './entity/room.entity';
 import { RoomRepository } from './room.repository';
 import { RoomCodeVO } from './vo/room-code.vo';
 import { Socket } from 'socket.io';
@@ -49,7 +49,7 @@ export class RoomService {
       throw new Error('Room not found');
     }
 
-    // Implement logic to remove client from room if needed
+    room.removeClient(client);
 
     return;
   }

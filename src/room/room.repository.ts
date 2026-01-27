@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Room } from './entitiy/room.entity';
+import { Room } from './entity/room.entity';
 import { RoomCodeVO } from './vo/room-code.vo';
 
 @Injectable()
@@ -8,7 +8,6 @@ export class RoomRepository {
 
   save(room: Room): void {
     this.rooms.set(room.code.value, room);
-    console.log(room);
   }
 
   findByCode(code: RoomCodeVO): Room | undefined {
