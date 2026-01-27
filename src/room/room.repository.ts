@@ -8,6 +8,7 @@ export class RoomRepository {
 
   save(room: Room): void {
     this.rooms.set(room.code.value, room);
+    console.log(room);
   }
 
   findByCode(code: RoomCodeVO): Room | undefined {

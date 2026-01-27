@@ -40,7 +40,7 @@ export class RoomGateway implements OnGatewayConnection, OnGatewayDisconnect {
   ) {
     const room = this.roomService.createRoom(client, dto.videoId);
     console.log(`Room created with code: ${room.code.value}`);
-    return { code: room.code.value };
+    return { roomCode: room.code.value };
   }
 
   @SubscribeMessage('DELETE_ROOM')
