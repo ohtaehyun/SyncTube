@@ -40,4 +40,12 @@ export class Room {
   isHost(client: Socket): boolean {
     return this._host.id === client.id;
   }
+
+  get videoId(): string {
+    return this._videoId;
+  }
+
+  url(): string {
+    return `https://www.youtube.com/watch?v=${this._videoId}`;
+  }
 }

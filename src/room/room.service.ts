@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { WsException } from '@nestjs/websockets';
 import { Room } from './entity/room.entity';
 import { RoomRepository } from './room.repository';
 import { RoomCodeVO } from './vo/room-code.vo';
@@ -18,7 +19,7 @@ export class RoomService {
       }
     }
 
-    throw new Error(
+    throw new WsException(
       'Failed to generate a unique room code after multiple attempts',
     );
   }
@@ -32,21 +33,21 @@ export class RoomService {
     return;
   }
 
-  joinRoom(code: RoomCodeVO, client: Socket) {
+  joinRoom(code: RoomCodeVO, client: Socket): Room {
     const room = this.roomRepository.findByCode(code);
     if (!room) {
-      throw new Error('Room not found');
+      throw new WsException('Room not found');
     }
 
     room.addClient(client);
 
-    return;
+    return room;
   }
 
   leaveRoom(code: RoomCodeVO, client: Socket) {
     const room = this.roomRepository.findByCode(code);
     if (!room) {
-      throw new Error('Room not found');
+      throw new WsException('Room not found');
     }
 
     room.removeClient(client);
