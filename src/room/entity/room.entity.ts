@@ -8,11 +8,55 @@ export class Room {
   private readonly _clients: Set<Socket> = new Set();
   private readonly _createdAt: Date;
 
-  constructor(code: RoomCodeVO, host: Socket, videoId: string) {
+  private _currentTime: number = 0; // 초 단위
+  private _isPlaying: boolean = false;
+  private _lastUpdateTime: Date = new Date();
+
+  constructor(
+    code: RoomCodeVO,
+    host: Socket,
+    videoId: string,
+    currentTime: number,
+    isPlaying: boolean = false,
+  ) {
     this._code = code;
     this._host = host;
     this._videoId = videoId;
     this._createdAt = new Date();
+    this._currentTime = currentTime;
+    this._isPlaying = isPlaying;
+    this._lastUpdateTime = new Date();
+  }
+
+  get currentTime(): number {
+    if (!this._isPlaying) return this._currentTime;
+    const elapsed = (Date.now() - this._lastUpdateTime.getTime()) / 1000;
+    return this._currentTime + elapsed;
+  }
+
+  get isPlaying(): boolean {
+    return this._isPlaying;
+  }
+
+  get lastUpdateTime(): Date {
+    return this._lastUpdateTime;
+  }
+
+  play(time: number) {
+    this._currentTime = time;
+    this._isPlaying = true;
+    this._lastUpdateTime = new Date();
+  }
+
+  pause(time: number) {
+    this._currentTime = time;
+    this._isPlaying = false;
+    this._lastUpdateTime = new Date();
+  }
+
+  seek(time: number) {
+    this._currentTime = time;
+    this._lastUpdateTime = new Date();
   }
 
   get code(): RoomCodeVO {
@@ -46,6 +90,9 @@ export class Room {
   }
 
   url(): string {
-    return `https://www.youtube.com/watch?v=${this._videoId}`;
+    console.log(this._currentTime);
+    console.log(this.currentTime);
+    const time = Math.floor(this.currentTime);
+    return `https://www.youtube.com/watch?v=${this._videoId}${time > 0 ? `&t=${time}s` : ''}`;
   }
 }

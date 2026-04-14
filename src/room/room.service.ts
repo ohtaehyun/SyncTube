@@ -9,11 +9,16 @@ import { Socket } from 'socket.io';
 export class RoomService {
   constructor(private readonly roomRepository: RoomRepository) {}
 
-  createRoom(host: Socket, videoId: string): Room {
+  createRoom(
+    host: Socket,
+    videoId: string,
+    currentTime: number = 0,
+    isPlaying: boolean = false,
+  ): Room {
     for (let attempt = 0; attempt < 5; attempt++) {
       const roomCode = RoomCodeVO.generate();
       if (!this.roomRepository.exists(roomCode)) {
-        const room = new Room(roomCode, host, videoId);
+        const room = new Room(roomCode, host, videoId, currentTime, isPlaying);
         this.roomRepository.save(room);
         return room;
       }
