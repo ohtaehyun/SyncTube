@@ -5,5 +5,5 @@ import { RoomCodeVO } from '../vo/room-code.vo';
 export class LeaveRoomDto {
   @Transform(({ value }) => new RoomCodeVO(value))
   @IsNotEmpty()
-  roomCode: RoomCodeVO;
+  code!: RoomCodeVO;
 }

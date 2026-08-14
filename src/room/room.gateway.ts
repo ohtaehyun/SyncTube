@@ -16,6 +16,8 @@ import { DeleteRoomDto } from './dto/delete-room.dto';
 import { JoinRoomDto } from './dto/join-room.dto';
 import { LeaveRoomDto } from './dto/leave-room.dto';
 import { CreateRoomDto } from './dto/create-room.dto';
+import { HostEventDto } from './dto/host-event.dto';
+import { ChangeVideoDto } from './dto/change-video.dto';
 
 @WebSocketGateway({
   cors: {
@@ -25,16 +27,18 @@ import { CreateRoomDto } from './dto/create-room.dto';
 @UseInterceptors(new WsResponseInterceptor())
 export class RoomGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
-  server: Server;
+  server!: Server;
 
-  constructor(private readonly roomService: RoomService) {}
-
-  handleConnection(client: Socket) {
-    console.log(`Client connected: ${client.id}`);
+  constructor(private readonly roomService: RoomService) {
+    this.roomService.onRoomClosed(({ code, reason }) => {
+      this.server.to(code).emit('ROOM_CLOSED', { code, reason });
+    });
   }
 
+  handleConnection(client: Socket) {}
+
   handleDisconnect(client: Socket) {
-    console.log(`Client disconnected: ${client.id}`);
+    this.roomService.handleDisconnect(client);
   }
 
   @SubscribeMessage('CREATE_ROOM')
@@ -49,7 +53,6 @@ export class RoomGateway implements OnGatewayConnection, OnGatewayDisconnect {
       dto.isPlaying,
     );
 
-    console.log(dto);
     return { code: room.code.value };
   }
 
@@ -67,22 +70,14 @@ export class RoomGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() client: Socket,
     @MessageBody(new WsValidationPipe()) dto: JoinRoomDto,
   ) {
-    console.log('join room request received with code:', dto.code.value);
     const room = this.roomService.joinRoom(dto.code, client);
-    const response = {
-      message: 'Joined room',
-      roomCode: room.code.value,
-      videoId: room.videoId,
-      url: room.url(),
-    };
-
-    console.log('join room response:', response);
-
     return {
       message: 'Joined room',
       roomCode: room.code.value,
       videoId: room.videoId,
       url: room.url(),
+      currentTime: room.currentTime,
+      isPlaying: room.isPlaying,
     };
   }
 
@@ -91,7 +86,29 @@ export class RoomGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() client: Socket,
     @MessageBody(new WsValidationPipe()) dto: LeaveRoomDto,
   ) {
-    this.roomService.leaveRoom(dto.roomCode, client);
+    this.roomService.leaveRoom(dto.code, client);
     return { message: 'Left room' };
+  }
+
+  @SubscribeMessage('HOST_EVENT')
+  async handleHostEvent(
+    @ConnectedSocket() client: Socket,
+    @MessageBody(new WsValidationPipe()) dto: HostEventDto,
+  ) {
+    const state = this.roomService.updatePlayback(
+      dto.code,
+      client,
+      dto.event,
+      dto.currentTime,
+    );
+    client.to(dto.code.value).emit('STATE_PATCH', state);
+    return state;
+  }
+
+  @SubscribeMessage('CHANGE_VIDEO')
+  async handleChangeVideo(@ConnectedSocket() client: Socket, @MessageBody(new WsValidationPipe()) dto: ChangeVideoDto) {
+    const state = this.roomService.changeVideo(dto.code, client, dto.videoId, dto.currentTime, dto.isPlaying);
+    client.to(dto.code.value).emit('VIDEO_CHANGED', state);
+    return state;
   }
 }

@@ -3,7 +3,7 @@ import { RoomCodeVO } from '../vo/room-code.vo';
 
 export class Room {
   private readonly _code: RoomCodeVO;
-  private readonly _videoId: string;
+  private _videoId: string;
   private readonly _host: Socket;
   private readonly _clients: Set<Socket> = new Set();
   private readonly _createdAt: Date;
@@ -11,6 +11,7 @@ export class Room {
   private _currentTime: number = 0; // 초 단위
   private _isPlaying: boolean = false;
   private _lastUpdateTime: Date = new Date();
+  private _revision = 0;
 
   constructor(
     code: RoomCodeVO,
@@ -46,17 +47,20 @@ export class Room {
     this._currentTime = time;
     this._isPlaying = true;
     this._lastUpdateTime = new Date();
+    this._revision += 1;
   }
 
   pause(time: number) {
     this._currentTime = time;
     this._isPlaying = false;
     this._lastUpdateTime = new Date();
+    this._revision += 1;
   }
 
   seek(time: number) {
     this._currentTime = time;
     this._lastUpdateTime = new Date();
+    this._revision += 1;
   }
 
   get code(): RoomCodeVO {
@@ -70,6 +74,18 @@ export class Room {
 
     this._clients.add(client);
     client.join(this._code.value);
+  }
+
+  hasClient(client: Socket): boolean {
+    return this._clients.has(client);
+  }
+
+  get clientCount(): number {
+    return this._clients.size;
+  }
+
+  get hostId(): string {
+    return this._host.id;
   }
 
   removeClient(client: Socket): void {
@@ -89,9 +105,23 @@ export class Room {
     return this._videoId;
   }
 
+  playbackState() {
+    return {
+      code: this._code.value,
+      isPlaying: this._isPlaying,
+      anchorTime: this._currentTime,
+      anchorTs: this._lastUpdateTime.getTime(),
+      revision: this._revision,
+    };
+  }
+
+  changeVideo(videoId: string, currentTime: number, isPlaying: boolean) {
+    this._videoId = videoId;
+    if (isPlaying) this.play(currentTime);
+    else this.pause(currentTime);
+  }
+
   url(): string {
-    console.log(this._currentTime);
-    console.log(this.currentTime);
     const time = Math.floor(this.currentTime);
     return `https://www.youtube.com/watch?v=${this._videoId}${time > 0 ? `&t=${time}s` : ''}`;
   }

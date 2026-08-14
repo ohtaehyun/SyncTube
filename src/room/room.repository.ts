@@ -21,4 +21,10 @@ export class RoomRepository {
   delete(code: RoomCodeVO): void {
     this.rooms.delete(code.value);
   }
+
+  findByClient(client: import('socket.io').Socket): Room[] {
+    return [...this.rooms.values()].filter(
+      (room) => room.isHost(client) || room.hasClient(client),
+    );
+  }
 }

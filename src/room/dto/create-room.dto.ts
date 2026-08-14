@@ -2,7 +2,7 @@ import { IsString, IsOptional, IsNumber, IsBoolean } from 'class-validator';
 
 export class CreateRoomDto {
   @IsString()
-  videoId: string;
+  videoId!: string;
 
   @IsNumber()
   currentTime: number = 0;

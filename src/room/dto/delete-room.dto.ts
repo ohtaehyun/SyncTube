@@ -5,5 +5,5 @@ import { RoomCodeVO } from '../vo/room-code.vo';
 export class DeleteRoomDto {
   @Transform(({ value }) => new RoomCodeVO(value))
   @IsNotEmpty()
-  code: RoomCodeVO;
+  code!: RoomCodeVO;
 }
