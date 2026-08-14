@@ -21,7 +21,12 @@ import { ChangeVideoDto } from './dto/change-video.dto';
 
 @WebSocketGateway({
   cors: {
-    origin: '*',
+    // Chrome Web Store extension ID is assigned when the item is first uploaded.
+    // Configure it on the server as a comma-separated list, for example:
+    // CORS_ORIGINS=chrome-extension://your-extension-id
+    origin: process.env.CORS_ORIGINS?.split(',')
+      .map((origin) => origin.trim())
+      .filter(Boolean) ?? '*',
   },
 })
 @UseInterceptors(new WsResponseInterceptor())
