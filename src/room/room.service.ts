@@ -101,7 +101,8 @@ export class RoomService {
     if (!room) throw new WsException('Room not found');
     if (!room.isHost(client)) throw new WsException('Only the host can change the video');
     room.changeVideo(videoId, currentTime, isPlaying);
-    return { videoId: room.videoId, ...room.playbackState() };
+    // 새 영상은 게스트의 메타데이터·버퍼링 완료 시점에 다시 seek해야 한다.
+    return { videoId: room.videoId, ...room.playbackState(true) };
   }
 
   handleDisconnect(client: Socket): void {
