@@ -105,13 +105,14 @@ export class Room {
     return this._videoId;
   }
 
-  playbackState() {
+  playbackState(forceSync: boolean = false) {
     return {
       code: this._code.value,
       isPlaying: this._isPlaying,
       anchorTime: this._currentTime,
       anchorTs: this._lastUpdateTime.getTime(),
       revision: this._revision,
+      forceSync,
     };
   }
 

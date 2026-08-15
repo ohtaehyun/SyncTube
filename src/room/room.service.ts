@@ -91,7 +91,9 @@ export class RoomService {
     if (event === 'PAUSE') room.pause(currentTime);
     if (event === 'SEEK') room.seek(currentTime);
 
-    return room.playbackState();
+    // 재생 재개는 새 기준점으로 다시 맞춰야 한다. 이전 위치를 유지한 채
+    // play()만 호출하면 광고·버퍼링으로 생긴 오차가 계속 남는다.
+    return room.playbackState(event === 'PLAY');
   }
 
   changeVideo(code: RoomCodeVO, client: Socket, videoId: string, currentTime: number, isPlaying: boolean) {
